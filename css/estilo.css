@@ -1,0 +1,103 @@
+.rounded{
+    border-radius: 10px;
+}
+.centrar{
+    position: absolute;
+    left:50%;
+    width:1024px;
+    margin-left:-512px;
+    text-align: center;
+}
+.msg{
+    display: none;
+    font-size: 50px; 
+    background-color: #006; 
+    border-radius: 5px;
+    padding-left: 8px;
+    z-index:1
+}
+.contenido{
+    width: 1024px;
+    height: 475px;
+    /*    background:url("images/blue.jpg");*/
+}
+
+.login{
+    width: 1024px;
+    height: 375px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 100px;
+    color: #ffffff;
+
+}
+
+.logo{
+    background:url("images/catheadmini.png");
+    position: absolute;
+    left:50%;
+    margin-left:20px;
+    width: 40px;
+    height: 36px;
+    z-index:2
+}
+
+#smartcat{
+    padding-top: 16px;
+    font-weight: bold;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.user_icon{
+    background-position: right center;
+    background-image: url(images/user.png);
+    background-repeat: no-repeat;
+    border-radius: 6px;
+}
+
+.pass_icon{
+    background-position: right center;
+    background-image: url(images/key.png);
+    background-repeat: no-repeat;
+    border-radius: 6px;
+}
+
+#inicio{
+    width: 1024px;
+    height: 475px;
+    background:url("images/SFE-inicio.png");
+}
+
+.table-header{
+    background: #fa8728 url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-family: arial;
+    font-size: 11px;
+}
+
+.table-content{
+    background: url("images/ui-bg_glass_75_79c9ec_1x400.png") center top repeat;
+    border-style: solid;
+    border-width: 1px;
+    color: black;
+    font-size: 11px;
+}
+
+.ui-combobox {
+    position: relative;
+    display: inline-block;
+}
+.ui-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+    /* support: IE7 */
+    *height: 1.7em;
+    *top: 0.1em;
+}
+.ui-combobox-input {
+    margin: 0;
+    padding: 0.3em;
+}
