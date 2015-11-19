@@ -167,12 +167,13 @@ class modelo extends CI_Model {
     }
 
     //******************************FACTURA*****************************+
-    function crear_factura($fecha, $hora) {
+    function crear_factura($fecha, $hora, $id_user) {
         $data = array(
             "fecha_fac" => $fecha,
             "hora_fac" => $hora,
             "rut_c" => '0-0',
             "estado_fac" => 1,
+            "id_usuario" => $id_user,
         );
         $this->db->insert("factura", $data);
         $this->db->select('*');

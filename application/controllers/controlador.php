@@ -259,150 +259,150 @@ class controlador extends CI_Controller {
                 $msg = "Usuario Modificado Correctamente";
                 $valor = 1;
             }
-            } else {
-                if ($this->modelo->update_usuario_2($id, $nombre, $user, $pass, $apellido, $tipo) == 0) {
-                    $msg = "Usuario Modificado Correctamente";
-                    $valor = 1;
-                }
-            }
-            echo json_encode(array("valor" => $valor, "msg" => $msg));
-        }
-
-        function seleccionar_usuario() {
-            $id = $this->input->post('id');
-            $valor = 0;
-            $datos = $this->modelo->seleccionar_usuario($id)->result();
-            $cont = $this->modelo->seleccionar_usuario($id)->num_rows();
-            if ($cont > 0) {
+        } else {
+            if ($this->modelo->update_usuario_2($id, $nombre, $user, $pass, $apellido, $tipo) == 0) {
+                $msg = "Usuario Modificado Correctamente";
                 $valor = 1;
-                foreach ($datos as $fila) {
-                    $id = $fila->id_usuario;
-                    $user = $fila->user;
-                    $pass = $fila->pass;
-                    $nombre = $fila->nombre;
-                    $apellido = $fila->apellido;
-                    $tipo = $fila->tipo_user;
-                }
-                echo json_encode(array("valor" => $valor, "id" => $id, "user" => $user, "pass" => $pass,
-                    "nombre" => $nombre, "apellido" => $apellido, "tipo" => $tipo));
-            } else {
-                echo json_encode(array("valor" => $valor));
             }
         }
+        echo json_encode(array("valor" => $valor, "msg" => $msg));
+    }
 
-        function delete_usuario() {
-            $id = $this->input->post('id');
-            $msj = "Error, algo salio mal!";
-            if ($this->modelo->delete_usuario($id) == 0) {
-                $msj = "Usuario Eliminado";
+    function seleccionar_usuario() {
+        $id = $this->input->post('id');
+        $valor = 0;
+        $datos = $this->modelo->seleccionar_usuario($id)->result();
+        $cont = $this->modelo->seleccionar_usuario($id)->num_rows();
+        if ($cont > 0) {
+            $valor = 1;
+            foreach ($datos as $fila) {
+                $id = $fila->id_usuario;
+                $user = $fila->user;
+                $pass = $fila->pass;
+                $nombre = $fila->nombre;
+                $apellido = $fila->apellido;
+                $tipo = $fila->tipo_user;
             }
-            echo json_encode(array("msj" => $msj));
+            echo json_encode(array("valor" => $valor, "id" => $id, "user" => $user, "pass" => $pass,
+                "nombre" => $nombre, "apellido" => $apellido, "tipo" => $tipo));
+        } else {
+            echo json_encode(array("valor" => $valor));
         }
+    }
 
-        //************************************FACTURA*****************************************
-        function crear_factura() {
-            date_default_timezone_set("America/Argentina/Buenos_Aires");
-            $fecha = date('Y-m-d');
-            $hora = date("H:i:s");
-            $datos = $this->modelo->crear_factura($fecha, $hora)->result();
+    function delete_usuario() {
+        $id = $this->input->post('id');
+        $msj = "Error, algo salio mal!";
+        if ($this->modelo->delete_usuario($id) == 0) {
+            $msj = "Usuario Eliminado";
+        }
+        echo json_encode(array("msj" => $msj));
+    }
+
+    //************************************FACTURA*****************************************
+    function crear_factura() {
+        date_default_timezone_set("America/Argentina/Buenos_Aires");
+        $fecha = date('Y-m-d');
+        $hora = date("H:i:s");
+        $id_user = $this->session->userdata('id_user');
+        $datos = $this->modelo->crear_factura($fecha, $hora, $id_user)->result();
+        foreach ($datos as $fila) {
+            $num_fac = $fila->num_fac;
+        }
+        echo json_encode(array("id" => $num_fac));
+    }
+
+    function insert_detalle_fac() {
+        $num_fac = $this->input->post('num_fac');
+        $cantidad = $this->input->post('cantidad');
+        $desc = $this->input->post('desc');
+        $precio = $this->input->post('precio');
+        $total_det = $precio * $cantidad;
+        $datos = $this->modelo->insert_datalle_fac($num_fac, $cantidad, $desc, $precio, $total_det);
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['detalle'] = $datos->result();
+        $this->load->view("detalle_factura", $data);
+    }
+
+    function delete_detalle_fac() {
+        $id = $this->input->post('id');
+        $num_fac = $this->input->post('num_fac');
+        $datos = $this->modelo->delete_detalle_fac($id, $num_fac);
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['detalle'] = $datos->result();
+        $this->load->view("detalle_factura", $data);
+    }
+
+    function cargar_detalle_fac() {
+        $num_fac = $this->input->post('num_fac');
+        $datos = $this->modelo->cargar_detalle_fac($num_fac);
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['detalle'] = $datos->result();
+        $this->load->view("detalle_factura", $data);
+    }
+
+    function calcular() {
+        $num_fac = $this->input->post('num_fac');
+        $cantidad = $this->input->post('cantidad');
+        $precio = $this->input->post('precio');
+        $ope = $this->input->post('ope');
+        $datos = $this->modelo->subtotal($num_fac)->result();
+        $sub = 0;
+        foreach ($datos as $fila) :
+            $prev = $fila->subtotal_fac;
+        endforeach;
+        if ($ope != '0'):
+            $sub = $prev - $cantidad * $precio;
+        else:
+            $sub = $prev + $cantidad * $precio;
+        endif;
+        $subtotal = $sub;
+        $neto = round($subtotal / 1.19);
+        $iva = round($neto * 0.19);
+        $total = $neto + $iva;
+        $this->modelo->update_total($num_fac, $subtotal, $neto, $iva, $total);
+        echo json_encode(array("subtotal" => $subtotal, "neto" => $neto, "iva" => $iva, "total" => $total));
+    }
+
+    function update_cliente_fac() {
+        $rut = $this->input->post('rut');
+        $num_fac = $this->input->post('num_fac');
+        $this->modelo->update_cliente_fac($rut, $num_fac);
+    }
+
+    function mantener_factura() {
+        $valor = 0;
+        $num_fac = 0;
+        $abierta = $this->modelo->mantener_factura()->num_rows();
+        if ($abierta != 0) {
+            $datos = $this->modelo->mantener_factura()->result();
             foreach ($datos as $fila) {
                 $num_fac = $fila->num_fac;
-            }
-            echo json_encode(array("id" => $num_fac));
-        }
-
-        function insert_detalle_fac() {
-            $num_fac = $this->input->post('num_fac');
-            $cantidad = $this->input->post('cantidad');
-            $desc = $this->input->post('desc');
-            $precio = $this->input->post('precio');
-            $total_det = $precio * $cantidad;
-            $datos = $this->modelo->insert_datalle_fac($num_fac, $cantidad, $desc, $precio, $total_det);
-            $data ['cantidad'] = $datos->num_rows();
-            $data ['detalle'] = $datos->result();
-            $this->load->view("detalle_factura", $data);
-        }
-
-        function delete_detalle_fac() {
-            $id = $this->input->post('id');
-            $num_fac = $this->input->post('num_fac');
-            $datos = $this->modelo->delete_detalle_fac($id, $num_fac);
-            $data ['cantidad'] = $datos->num_rows();
-            $data ['detalle'] = $datos->result();
-            $this->load->view("detalle_factura", $data);
-        }
-
-        function cargar_detalle_fac() {
-            $num_fac = $this->input->post('num_fac');
-            $datos = $this->modelo->cargar_detalle_fac($num_fac);
-            $data ['cantidad'] = $datos->num_rows();
-            $data ['detalle'] = $datos->result();
-            $this->load->view("detalle_factura", $data);
-        }
-
-        function calcular() {
-            $num_fac = $this->input->post('num_fac');
-            $cantidad = $this->input->post('cantidad');
-            $precio = $this->input->post('precio');
-            $ope = $this->input->post('ope');
-            $datos = $this->modelo->subtotal($num_fac)->result();
-            $sub = 0;
-            foreach ($datos as $fila) :
-                $prev = $fila->subtotal_fac;
-            endforeach;
-            if ($ope != '0'):
-                $sub = $prev - $cantidad * $precio;
-            else:
-                $sub = $prev + $cantidad * $precio;
-            endif;
-            $subtotal = $sub;
-            $neto = round($subtotal / 1.19);
-            $iva = round($neto * 0.19);
-            $total = $neto + $iva;
-            $this->modelo->update_total($num_fac, $subtotal, $neto, $iva, $total);
-            echo json_encode(array("subtotal" => $subtotal, "neto" => $neto, "iva" => $iva, "total" => $total));
-        }
-
-        function update_cliente_fac() {
-            $rut = $this->input->post('rut');
-            $num_fac = $this->input->post('num_fac');
-            $this->modelo->update_cliente_fac($rut, $num_fac);
-        }
-
-        function mantener_factura() {
-            $valor = 0;
-            $num_fac = 0;
-            $abierta = $this->modelo->mantener_factura()->num_rows();
-            if ($abierta != 0) {
-                $datos = $this->modelo->mantener_factura()->result();
-                foreach ($datos as $fila) {
-                    $num_fac = $fila->num_fac;
-                    $subtotal = $fila->subtotal_fac;
-                    $neto = $fila->neto_fac;
-                    $iva = $fila->iva_fac;
-                    $total = $fila->total_fac;
-                    $rut = $fila->rut_c;
-                    $valor = 1;
-                }
-            }
-            echo json_encode(array("num_fac" => $num_fac, "subtotal" => $subtotal, "neto" => $neto, "iva" => $iva, "total" => $total, "rut" => $rut, "valor" => $valor));
-        }
-
-        function mantener_cliente_fac() {
-            $rut = $this->input->post('rut');
-            $datos = $this->modelo->mantener_cliente_fac($rut)->result();
-            foreach ($datos as $fila):
+                $subtotal = $fila->subtotal_fac;
+                $neto = $fila->neto_fac;
+                $iva = $fila->iva_fac;
+                $total = $fila->total_fac;
                 $rut = $fila->rut_c;
-                $nombre = $fila->nombre_c;
-                $direccion = $fila->direccion_c;
-                $ciudad = $fila->ciudad_c;
-                $comuna = $fila->comuna_c;
-                $telefono = $fila->telefono_c;
-                $giro = $fila->giro_c;
-            endforeach;
-            echo json_encode(array("rut" => $rut, "nombre" => $nombre, "direccion" => $direccion,
-                "ciudad" => $ciudad, "comuna" => $comuna, "telefono" => $telefono, "giro" => $giro));
+                $valor = 1;
+            }
         }
-
+        echo json_encode(array("num_fac" => $num_fac, "subtotal" => $subtotal, "neto" => $neto, "iva" => $iva, "total" => $total, "rut" => $rut, "valor" => $valor));
     }
-    
+
+    function mantener_cliente_fac() {
+        $rut = $this->input->post('rut');
+        $datos = $this->modelo->mantener_cliente_fac($rut)->result();
+        foreach ($datos as $fila):
+            $rut = $fila->rut_c;
+            $nombre = $fila->nombre_c;
+            $direccion = $fila->direccion_c;
+            $ciudad = $fila->ciudad_c;
+            $comuna = $fila->comuna_c;
+            $telefono = $fila->telefono_c;
+            $giro = $fila->giro_c;
+        endforeach;
+        echo json_encode(array("rut" => $rut, "nombre" => $nombre, "direccion" => $direccion,
+            "ciudad" => $ciudad, "comuna" => $comuna, "telefono" => $telefono, "giro" => $giro));
+    }
+
+}
