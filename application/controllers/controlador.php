@@ -9,6 +9,8 @@ class controlador extends CI_Controller {
         parent::__construct();
         $this->load->model("modelo");
         $this->load->library('pdf');
+        $this->load->library('XML');
+        $this->load->library('Dte');
     }
 
     public function index() {
