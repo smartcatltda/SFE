@@ -24,7 +24,7 @@
         <div style="font-size: 20px; text-shadow: black 0.1em 0.1em 0.2em;"><h1>Inicio de Sesión</h1></div>
         <hr style="width: 35%;"><br>
         <input class="user_icon rounded" placeholder="Usuario" size="30" id="user" maxlength="10" style="font-size: 20px; text-align: center" autofocus /><br>
-        <input class="pass_icon rounded" placeholder="Contraseña" type="password" size="30" id="pass" style="font-size: 20px; text-align: center" required onkeypress="capLock(event)"/><br>
+        <input class="pass_icon rounded" placeholder="Contraseña" type="password" size="30" id="pass" style="font-size: 20px; text-align: center" required onkeypress="capLock(event), enter_conectar(event)"/><br>
         <br>
         <button id="conectar">Conectar</button>
         <hr style="width: 35%;"><br>
@@ -48,14 +48,13 @@
                 </tr>
                 <tr>
             <input type="text"  id="rut_edit" style="width: 1px;" hidden disabled/>
-            <td style="text-align: left; color: white;">Rut: </td>
-            <td style="text-align: left; color: white;">Nombre: </td>
-            <td style="text-align: left; color: white;">Dirección: </td>
-            <td style="text-align: left; color: white;">Ciudad: </td>
-            <td style="text-align: left; color: white;">Comuna: </td>
-            <td style="text-align: left; color: white;">Telefono:</td>
-            <td style="text-align: left; color: white;">Giro:</td>
-
+            <td style="color: white;">Rut</td>
+            <td style="color: white;">Nombre</td>
+            <td style="color: white;">Dirección</td>
+            <td style="color: white;">Ciudad</td>
+            <td style="color: white;">Comuna</td>
+            <td style="color: white;">Telefono</td>
+            <td style="color: white;">Giro</td>
             </tr>
             <tr>
                 <td><input type="text"  id="mc_rut" placeholder="Ej: 12345678-9" style="width: 140px; text-align: center"class="rounded" maxlength="10" onkeypress="return validar_numero_letra(this.event)"/></td>
@@ -101,30 +100,25 @@
                 <tr>
             <input type="text"  id="id_user" style="width: 1px;" hidden disabled/>
             <input type="text"  id="nombre_user" style="width: 1px;" hidden disabled/>
-            <td style="text-align: left; color: white;">Usuario: </td>
-            <td style="text-align: left; color: white;">Contraseña: </td>
-            <td style="text-align: left; color: white;">Nombre: </td>
-            <td style="text-align: left; color: white;">Apellido: </td>
-            <td style="text-align: left; color: white;">Tipo: </td>
+            <td style="color: white;">Usuario</td>
+            <td style="color: white;">Contraseña</td>
+            <td style="color: white;">Nombre</td>
+            <td style="color: white;">Apellido</td>
+            <td style="color: white;">Tipo</td>
             </tr>
             <tr>
                 <td><input type="text"  id="mu_user" placeholder="Usario" style="width: 140px; text-align: center"class="rounded" maxlength="10" /></td>
                 <td><input type="password" id="mu_pass" placeholder="Contraseña" style="width: 140px; text-align: center" class="rounded"/></td>
                 <td><input type="text" id="mu_nombre" placeholder="Nombre" style="width: 140px; text-align: center" class="rounded"/></td>
                 <td><input type="text" id="mu_apellido" placeholder="Apellido" style="width: 140px; text-align: center" class="rounded"/></td>
-                <td><select class="rounded" id="mu_tipo" style="width: 200px;" >
+                <td><select class="rounded" id="mu_tipo" style="width: 180px;" >
                         <option value="" selected>Seleccione</option>
                         <option value='0'>Usuario</option>
                         <option value='1'>Administrador</option>
                     </select>
                 </td>
-            </tr>
-            <tr>
-                <td colspan="5"></td>
-                <td rowspan="2" align="right">
-                    <button id="mu_bt_guardar" style="width: 110px; text-align: center">Guardar</button>
-                </td>
-                <td rowspan="2" align="right"> <button id="mu_bt_editar" style="width: 110px; text-align: center">Editar</button></td>
+                <td align="right"><button id="mu_bt_guardar" style="width: 110px; text-align: center">Guardar</button></td>
+                <td align="right"> <button id="mu_bt_editar" style="width: 110px; text-align: center">Editar</button></td>
             </tr>
             <tr>
                 <td colspan="2"><input type="text" id="mu_filtro" placeholder="Busqueda" value="" style="width: 290px; text-align: center" class="rounded"/></td>
@@ -144,7 +138,8 @@
         <table width="1024">
             <caption style="text-align: center; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; font-size: 18px;">Factura Electrónica</caption>
             <tr> 
-                <td><button id="f_bt_crear_factura" style="width: 180px; text-align: center">Crear Factura</button></td>
+                <td id="td_crear_f"><button id="f_bt_crear_factura" style="width: 180px; text-align: center">Crear Factura</button></td>
+                <td style="display: none;" id="td_descartar_f"><button disabled id="f_bt_descartar_factura" style=" width: 180px; text-align: center">Descartar Factura</button></td>
                 <td style="color: white;">N°<input readonly type="text" id="f_numero"  style="width: 80px; text-align: center" class="rounded"/></td>
                 <td><button disabled id="f_bt_cerrar_factura" style="width: 180px; text-align: center">Cerrar Factura</button></td>
             </tr>
@@ -210,5 +205,43 @@
             </tr>
         </table>
     </div>
-
+    <!--****************************REPORTES***************************-->
+    <div id="informe"  class="contenido" hidden="">
+        <table style="width: 1024px;">
+            <thead>
+                <tr>
+                    <th colspan="7" style="text-align: center; color: white; font-size: 18px; text-shadow: black 0.1em 0.1em 0.2em;">Informes</th>
+                </tr>
+            </thead>
+        </table>
+        <br>
+        <table class=" " style="border-radius: 8px; width: 1024px;" border="0">
+            <tr>
+                <td rowspan="2">Tipo de Informe</td>
+                <td rowspan="2">Rango de Tiempo</td>
+                <td rowspan="2">Fecha</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td>
+                        <select class="rounded" id="r_tipo_select" onchange="cargar_rangos()" style="width: 200px;">
+                            <option value="f">Facturas</option>
+                            <option value="c">Clientes</option>
+                            <option value="u">Usarios</option>
+                            <option value="rf">Resumen Factura</option>
+                            <option value="rc">Resumen Clientes</option>
+                            <option value="ru">Resumen Usuarios</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="rounded" id="r_rango_select" style="width: 200px;"></select>
+                    </td>
+                    <td><input type="text" style="text-align: center;" id="r_datepicker" class="rounded"></td>
+                    <td><button id="r_generarInforme">Generar Informe</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <div id="reporte"></div>
+    </div>
 </div>

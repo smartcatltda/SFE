@@ -167,8 +167,9 @@ class modelo extends CI_Model {
     }
 
     //******************************FACTURA*****************************+
-    function crear_factura($fecha, $hora, $id_user) {
+    function crear_factura($fecha, $hora, $id_user, $num_fac) {
         $data = array(
+            "num_fac" => $num_fac,
             "fecha_fac" => $fecha,
             "hora_fac" => $hora,
             "rut_c" => '0-0',
@@ -252,6 +253,39 @@ class modelo extends CI_Model {
         $this->db->select('*');
         $this->db->where('rut_c', $rut);
         $this->db->from('cliente');
+        return $this->db->get();
+    }
+
+    function descartar_factura($num_fac) {
+        $this->db->where('num_fac', $num_fac);
+        $this->db->delete('factura');
+        return 0;
+    }
+
+    function cerrar_factura($num_fac) {
+        $data = array(
+            "estado_fac" => 0,
+        );
+        $this->db->where('num_fac', $num_fac);
+        $this->db->update('factura', $data);
+        return 0;
+    }
+
+    function num_fac() {
+        $this->db->select('num_fac');
+        $this->db->order_by('num_fac', 'DESC');
+        $this->db->limit(1);
+        $this->db->from('factura');
+        return $this->db->get();
+    }
+
+//***********************************INFORMES******************************************
+    function diario_F($fecha) {
+        $this->db->select('*');
+        $this->db->from('factura');
+        $this->db->join('cliente', 'factura.rut_c = cliente.rut_c');
+        $this->db->join('usuario', 'factura.id_usuario = usuario.id_usuario');
+        $this->db->where('factura.fecha_fac', $fecha);
         return $this->db->get();
     }
 

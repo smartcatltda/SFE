@@ -8,6 +8,7 @@ class controlador extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model("modelo");
+        $this->load->library('pdf');
     }
 
     public function index() {
@@ -304,8 +305,18 @@ class controlador extends CI_Controller {
         date_default_timezone_set("America/Argentina/Buenos_Aires");
         $fecha = date('Y-m-d');
         $hora = date("H:i:s");
+        $prev = 0;
+        if ($this->modelo->num_fac()->num_rows() == 0):
+            $num_fac = "1";
+        else:
+            $datos = $this->modelo->num_fac()->result();
+            foreach ($datos as $fila) :
+                $prev = $fila->num_fac;
+            endforeach;
+            $num_fac = $prev + 1;
+        endif;
         $id_user = $this->session->userdata('id_user');
-        $datos = $this->modelo->crear_factura($fecha, $hora, $id_user)->result();
+        $datos = $this->modelo->crear_factura($fecha, $hora, $id_user, $num_fac)->result();
         foreach ($datos as $fila) {
             $num_fac = $fila->num_fac;
         }
@@ -370,6 +381,22 @@ class controlador extends CI_Controller {
         $this->modelo->update_cliente_fac($rut, $num_fac);
     }
 
+    function verf_detalle() {
+        $num_fac = $this->input->post('num_fac');
+        $detalle = $this->modelo->cargar_detalle_fac($num_fac)->num_rows();
+        echo json_encode(array("detalle" => $detalle));
+    }
+
+    function descartar_factura() {
+        $num_fac = $this->input->post('num_fac');
+        $valor = 0;
+        $detalle = $this->modelo->cargar_detalle_fac($num_fac)->num_rows();
+        if ($this->modelo->descartar_factura($num_fac) == 0):
+            $valor = 1;
+        endif;
+        echo json_encode(array("valor" => $valor, "detalle" => $detalle));
+    }
+
     function mantener_factura() {
         $valor = 0;
         $num_fac = 0;
@@ -403,6 +430,28 @@ class controlador extends CI_Controller {
         endforeach;
         echo json_encode(array("rut" => $rut, "nombre" => $nombre, "direccion" => $direccion,
             "ciudad" => $ciudad, "comuna" => $comuna, "telefono" => $telefono, "giro" => $giro));
+    }
+
+    function cerrar_factura() {
+        $num_fac = $this->input->post('num_fac');
+        $valor = 0;
+        $detalle = $this->modelo->cargar_detalle_fac($num_fac)->num_rows();
+        if ($this->modelo->cerrar_factura($num_fac) == 0) {
+            $valor = 1;
+        }
+        echo json_encode(array("valor" => $valor, "detalle" => $detalle));
+    }
+
+    //*************************INFORMES*******************************************
+
+    function reporte_diario() {
+        $tipo = $this->input->post('tipo');
+        $fecha = $this->input->post('fecha');
+        if ($tipo == "f") {
+            $datos["diario_f"] = $this->modelo->diario_f($fecha)->result();
+            $datos["cantidad"] = $this->modelo->diario_f($fecha)->num_rows();
+            $this->load->view("r_factura", $datos);
+        }
     }
 
 }

@@ -1,17 +1,14 @@
 $(document).ready(function () {
-    //**********LOGIN**********
+//**********LOGIN**********
     $("#login").tabs();
     verificalogin();
-
     $("#conectar").button().click(function () {
         conectar();
     });
     //******************CONTENIDO***************
     $("#contenido").tabs();
-
     //******************MENU**********************
     $("#menu").tabs();
-
     $("#menuinicio").button().click(function () {
         inicio();
     });
@@ -24,10 +21,12 @@ $(document).ready(function () {
     $("#menufactura").button().click(function () {
         factura();
     });
+    $("#menuinformes").button().click(function () {
+        informes();
+    });
     $("#menusalir").button().click(function () {
         salir();
     });
-
     //******************MANTENEDOR CLIENTES******************
     $("#mc_bt_guardar").button().click(function () {
         insert_cliente();
@@ -35,7 +34,6 @@ $(document).ready(function () {
     $("#mc_bt_editar").button().click(function () {
         update_clientes();
     });
-
     $("#mc_filtro").keyup(function () {
         if ($(this).val() != "")
         {
@@ -44,7 +42,6 @@ $(document).ready(function () {
         }
         else
         {
-
             $("#tabla_lista_clientes tbody>tr").show();
         }
     });
@@ -63,20 +60,21 @@ $(document).ready(function () {
         }
         else
         {
-
             $("#tabla_lista_usuarios tbody>tr").show();
         }
     });
-
     //********************FACTURA*****************************
     $("#f_bt_crear_factura").button().click(function () {
         crear_factura();
+    });
+    $("#f_bt_descartar_factura").button().click(function () {
+        descartar_factura();
     });
     $("#f_bt_agregar_detalle").button().click(function () {
         insert_detalle_fac();
     });
     $("#f_bt_cerrar_factura").button().click(function () {
-
+        cerrar_factura();
     });
     $("#fc_nombre").change(function () {
         var rut = $("#fc_nombre").val();
@@ -118,13 +116,36 @@ $(document).ready(function () {
         $.post(base_url + "controlador/update_cliente_fac", {rut: rut, num_fac: num_fac}
         );
     });
-
+    //*****************INFORMES***************
+    $("#r_datepicker").datepicker({});
+//    $("#r_datepicker").datepicker({
+//        dateFormat: 'dd/mm/yy'
+//    });
+    $.datepicker.regional['es'] = {
+        closeText: 'Cerrar',
+        prevText: '<Ant',
+        nextText: 'Sig>',
+        currentText: 'Hoy',
+        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+        weekHeader: 'Sm',
+        dateFormat: 'yy/mm/dd',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''
+    };
+    $.datepicker.setDefaults($.datepicker.regional['es']);
+    $("#r_datepicker").datepicker('setDate', '+0');
+    $("#r_generarInforme").button().click(function () {
+        generar_informe();
+    });
     //**********FOOTER**********
     $("#footer").tabs();
-
 });
-
-
 //**********LOGIN**********
 
 function conectar()
@@ -206,6 +227,7 @@ function salir()
             {
                 if (datos.valor == 0)
                 {
+                    descartar_factura();
                     location.reload();
                 }
             },
@@ -220,6 +242,7 @@ function inicio()
     $("#usuarios").hide('fast');
     $("#clientes").hide('fast');
     $("#factura").hide('fast');
+    $("#informe").hide('fast');
 }
 
 function usuarios()
@@ -228,6 +251,7 @@ function usuarios()
     $("#usuarios").show('fast');
     $("#clientes").hide('fast');
     $("#factura").hide('fast');
+    $("#informe").hide('fast');
 }
 function clientes()
 {
@@ -235,6 +259,7 @@ function clientes()
     $("#usuarios").hide('fast');
     $("#clientes").show('fast');
     $("#factura").hide('fast');
+    $("#informe").hide('fast');
 }
 
 function factura()
@@ -244,6 +269,16 @@ function factura()
     $("#usuarios").hide('fast');
     $("#clientes").hide('fast');
     $("#factura").show('fast');
+    $("#informe").hide('fast');
+}
+
+function informes()
+{
+    $("#inicio").hide('fast');
+    $("#usuarios").hide('fast');
+    $("#clientes").hide('fast');
+    $("#factura").hide('fast');
+    $("#informe").show('fast');
 }
 
 //******************************CLIENTES********************************
@@ -484,7 +519,6 @@ function  estado_cliente(rut, estado)
             );
 }
 
-
 //****************************************USUARIOS****************************************
 function cargar_usuarios()
 {
@@ -626,6 +660,12 @@ function crear_factura() {
                 $("#f_bt_cerrar_factura").button("refresh");
                 $("#f_bt_agregar_detalle").removeAttr("disabled");
                 $("#f_bt_agregar_detalle").button("refresh");
+                $("#td_crear_f").attr("style", "visibility: hidden");
+                $("#td_crear_f").attr("style", "display: none");
+                $("#td_descartar_f").attr("style", "visibility: show");
+                $("#td_descartar_f").attr("style", "display: block");
+                $("#f_bt_descartar_factura").removeAttr("disabled");
+                $("#f_bt_descartar_factura").button("refresh");
                 $("#f_bt_crear_factura").attr("disabled", true);
                 $("#f_bt_crear_factura").button("refresh");
                 $('#fc_rut').attr('readonly', false);
@@ -649,6 +689,7 @@ function insert_detalle_fac() {
                 {cantidad: cantidad, desc: desc, precio: precio, num_fac: num_fac},
         function (ruta, datos) {
             $("#detalle_factura").html(ruta, datos);
+            $("#detalle_factura").attr("style", "visibility: show");
             $("#fd_cantidad").val("");
             $("#fd_descripcion").val("");
             $("#fd_precio").val("");
@@ -663,7 +704,6 @@ function insert_detalle_fac() {
             $("#f_total").val(datos.total);
         }, "json"
                 );
-
     } else {
         $("#msg").hide();
         $("#msg").html("<label>Complete todos los campos</label>");
@@ -702,6 +742,12 @@ function mantener_factura() {
                     $('#f_neto').val(datos.neto);
                     $('#f_iva').val(datos.iva);
                     $('#f_total').val(datos.total);
+                    $("#td_descartar_f").attr("style", "visibility: show");
+                    $("#td_descartar_f").attr("style", "display: block");
+                    $("#td_crear_f").attr("style", "visibility: hidden");
+                    $("#td_crear_f").attr("style", "display: none");
+                    $("#f_bt_descartar_factura").removeAttr("disabled");
+                    $("#f_bt_descartar_factura").button("refresh");
                     $("#f_bt_cerrar_factura").removeAttr("disabled");
                     $("#f_bt_cerrar_factura").button("refresh");
                     $("#f_bt_agregar_detalle").removeAttr("disabled");
@@ -737,6 +783,158 @@ function mantener_factura() {
             }, "json"
             );
 }
+
+function descartar_factura() {
+    var num_fac = $("#f_numero").val();
+    $.post(base_url + "controlador/descartar_factura",
+            {num_fac: num_fac},
+    function (datos) {
+        if (datos.valor == 1) {
+            limpiar_factura();
+            if (datos.detalle != 0) {
+                $("#detalle_factura").attr("style", "visibility: hidden");
+            }
+            $("#td_descartar_f").attr("style", "visibility: hidden");
+            $("#td_descartar_f").attr("style", "display: none");
+            $("#td_crear_f").attr("style", "visibility: show");
+            $("#td_crear_f").attr("style", "display: block");
+            $("#f_bt_descartar_factura").attr("disabled", true);
+            $("#f_bt_descartar_factura").button("refresh");
+            $("#f_bt_crear_factura").removeAttr("disabled");
+            $("#f_bt_crear_factura").button("refresh");
+            $("#f_bt_cerrar_factura").attr("disabled", true);
+            $("#f_bt_cerrar_factura").button("refresh");
+            $("#f_bt_agregar_detalle").attr("disabled", true);
+            $("#f_bt_agregar_detalle").button("refresh");
+            $('#fc_rut').attr('readonly', true);
+            $("#fc_nombre").attr("disabled", true);
+            $("#fd_cantidad").attr('readonly', true);
+            $("#fd_descripcion").attr('readonly', true);
+            $("#fd_precio").attr('readonly', true);
+        }
+    }, "json"
+            );
+}
+
+function cerrar_factura() {
+    var num_fac = $("#f_numero").val();
+    var rut = $("#fc_rut").val();
+    var nombre = $("#fc_nombre").val();
+    var direccion = $("#fc_direccion").val();
+    var ciudad = $("#fc_ciudad").val();
+    var comuna = $("#fc_comuna").val();
+    var telefono = $("#fc_telefono").val();
+    var giro = $("#fc_giro").val();
+    if (rut != "" && nombre != "" && direccion != "" && ciudad != "" && comuna != "" && telefono != "" && giro != "") {
+        $.post(base_url + "controlador/verf_detalle",
+                {num_fac: num_fac},
+        function (datos) {
+            if (datos.detalle != 0) {
+                $.post(base_url + "controlador/cerrar_factura",
+                        {num_fac: num_fac},
+                function (datos) {
+                    if (datos.valor == 0) {
+                        $("#msg").hide();
+                        $("#msg").html("<label>Error!</label>");
+                        $("#msg").css("color", "#55FF00").show('fade', 'slow').delay(3000).hide('fade', 'slow');
+                    } else {
+                        limpiar_factura();
+                        if (datos.detalle != 0) {
+                            $("#detalle_factura").attr("style", "visibility: hidden");
+                        }
+                        $("#td_descartar_f").attr("style", "visibility: hidden");
+                        $("#td_descartar_f").attr("style", "display: none");
+                        $("#td_crear_f").attr("style", "visibility: show");
+                        $("#td_crear_f").attr("style", "display: block");
+                        $("#f_bt_descartar_factura").attr("disabled", true);
+                        $("#f_bt_descartar_factura").button("refresh");
+                        $("#f_bt_crear_factura").removeAttr("disabled");
+                        $("#f_bt_crear_factura").button("refresh");
+                        $("#f_bt_cerrar_factura").attr("disabled", true);
+                        $("#f_bt_cerrar_factura").button("refresh");
+                        $("#f_bt_agregar_detalle").attr("disabled", true);
+                        $("#f_bt_agregar_detalle").button("refresh");
+                        $('#fc_rut').attr('readonly', true);
+                        $("#fc_nombre").attr("disabled", true);
+                        $("#fd_cantidad").attr('readonly', true);
+                        $("#fd_descripcion").attr('readonly', true);
+                        $("#fd_precio").attr('readonly', true);
+                    }
+                }, "json"
+                        );
+            } else {
+                $("#msg").hide();
+                $("#msg").html("<label>Debe Ingresar Detalle!</label>");
+                $("#msg").css("color", "#FF0000").show('pulsate', 'slow').delay(3000).hide('fade', 'slow');
+            }
+        }, "json"
+                );
+    } else {
+        $("#msg").hide();
+        $("#msg").html("<label>Debe Seleccioner un Cliente!</label>");
+        $("#msg").css("color", "#FF0000").show('pulsate', 'slow').delay(3000).hide('fade', 'slow');
+    }
+}
+
+function limpiar_factura() {
+    $("#f_numero").val("");
+    $("#fc_rut").val("");
+    $("#fc_nombre").val("0");
+    $("#fc_direccion").val("");
+    $("#fc_ciudad").val("");
+    $("#fc_comuna").val("");
+    $("#fc_telefono").val("");
+    $("#fc_giro").val("");
+    $("#fd_cantidad").val("");
+    $("#fd_descripcion").val("");
+    $("#fd_precio").val("");
+    $("#f_subtotal").val("");
+    $("#f_neto").val("");
+    $("#f_iva").val("");
+    $("#f_total").val("");
+}
+
+//********************************************INFORMES*************************************************
+function cargar_rangos()
+//carga el selector de rangos dependiendo de la opción seleccionada en el
+//selector de tipos de informe
+{
+    var tipo = $("#r_tipo_select").val();
+//    if (tipo == "f" || tipo == "c" || tipo == "u") {
+//        $("#r_rango_select").html("<option value='d'>Diario</option>");
+//    } else {
+    if (tipo == "f" || tipo == "c" || tipo == "u") {
+        $("#r_rango_select").html("<option value='d'>Diario</option><option value='m'>Mensual</option>");
+    } else {
+        $("#r_rango_select").html("<option value='m'>Mensual</option><option value='a'>Anual</option>");
+    }
+//    }
+}
+
+function generar_informe() {
+    var tipo = $("#r_tipo_select").val();
+    var rango = $("#r_rango_select").val();
+    var fecha = $("#r_datepicker").val();
+    if (rango == "d") {
+        $.post(base_url + "controlador/reporte_diario", {tipo: tipo, fecha: fecha},
+        function (ruta, datos) {
+            $("#reporte").html(ruta, datos);
+        });
+    } else {
+        if (filtro == "m") {
+            $.post(base_url + "controlador/reporte_mensual", {tipo: tipo, fecha: fecha},
+            function (ruta, datos) {
+                $("#reporte").html(ruta, datos);
+            });
+        } else {
+            $.post(base_url + "controlador/reporte_anual", {tipo: tipo, fecha: fecha},
+            function (ruta, datos) {
+                $("#reporte").html(ruta, datos);
+            });
+        }
+    }
+}
+
 //******************VALIDACIONES*************************
 
 //Mayuscula
@@ -753,7 +951,6 @@ function capLock(e) {
 function validar_numero_letra(myfield, e, dec) {
     var key;
     var keychar;
-
     if (window.event)
     {
         key = window.event.keyCode;
@@ -767,13 +964,12 @@ function validar_numero_letra(myfield, e, dec) {
         return true;
     }
     keychar = String.fromCharCode(key);
-
     //esto es para permitir las teclas de control como BORRAR(8) entre otras
     if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27))
     {
         return true;
     }                 //donde estan los numeros pueden colocar todos los caracteres
-    // que quieres aceptar por ejemplo: abcd...xyzABCD...XYZ
+// que quieres aceptar por ejemplo: abcd...xyzABCD...XYZ
     else if ((("0123456789k-").indexOf(keychar) > -1))
     {
         return true;
@@ -849,7 +1045,8 @@ $.extend($.expr[":"],
             {
                 return (elem.textContent || elem.innerText || $(elem).text() || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
             }
-        });
+        }
+);
 //********************AUTOCOMPLETAR***********************************
 //$(function () {
 //    $('#fc_nombre').combobox();

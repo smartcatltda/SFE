@@ -23,6 +23,7 @@
             <button id="menuusuarios" onclick="cargar_usuarios();">Usuarios</button>
             <button id="menuclientes" onclick="cargar_clientes();">Clientes</button>
             <button id="menufactura" onclick="cargar_select_clientes();">Facturas</button>
+            <button id="menuinformes" onclick="cargar_rangos();">Informes</button>
             <button style="float: right" id="menusalir">Cerrar Sesión</button>
         </div>
     </header>
