@@ -39,11 +39,11 @@
                                     <td width="100"><?= $fila->rut_c ?></td>
                                     <td width="120"><?= $fila->nombre_c ?></td>                             
                                     <td width="120"><?= $fila->direccion_c ?></td>  
-                                    <td width="100"><?= $fila->ciudad_c ?></td>  
-                                    <td width="100"><?= $fila->comuna_c ?></td>  
+                                    <td width="100"><?= $fila->str_descripcion_pr ?></td>  
+                                    <td width="100"><?= $fila->str_descripcion_co ?></td>  
                                     <td width="100"><?= $fila->telefono_c ?></td>  
                                     <td width="100"><?= $fila->giro_c ?></td>  
-                                    <td width="60"><input type="image" src="css/images/arrow-left-icon.png" onclick="seleccionar_cliente('<?= $fila->rut_c ?>')" style="width:20px;"/></td>
+                                    <td width="60"><input type="image" src="css/images/arrow-left-icon.png" onclick="cargar_select_comuna_ciudad(<?= $fila->id_pr?>); seleccionar_cliente('<?= $fila->rut_c ?>')" style="width:20px;"/></td>
                                     <?php
                                     if ($this->session->userdata('permiso') == 1):
                                         ?>

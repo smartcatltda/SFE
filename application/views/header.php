@@ -21,7 +21,7 @@
         <div id="menu" class="ui-widget-header ui-corner-all centrar" hidden style="text-align: left; margin-bottom: 10px; ">
             <button id="menuinicio">Inicio</button>
             <button id="menuusuarios" onclick="cargar_usuarios();">Usuarios</button>
-            <button id="menuclientes" onclick="cargar_clientes();">Clientes</button>
+            <button id="menuclientes" onclick="cargar_clientes(); cargar_select_ciudad(); cargar_select_comuna();">Clientes</button>
             <button id="menufactura" onclick="cargar_select_clientes();">Facturas</button>
             <button id="menuinformes" onclick="cargar_rangos();">Informes</button>
             <button style="float: right" id="menusalir">Cerrar Sesión</button>

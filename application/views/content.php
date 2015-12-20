@@ -18,6 +18,19 @@
         (Ej: 12345678-9)
     </p>
 </div>
+<div hidden id="dialog-pass" title="Error">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>
+        Contraseña Incorrecta, Intente Nuevamente.<br>
+    </p>
+</div>
+<div hidden id="dialog-form" title="Confirmacion">
+    <p class="validateTips">Escriba su Contraseña.</p>
+    <form>
+        <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all">
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </form>
+</div>
 <!--************LOGIN************-->
 <div id="login" class="centrar" hidden>
     <div class="login" style="z-index: -1">
@@ -60,9 +73,9 @@
                 <td><input type="text"  id="mc_rut" placeholder="Ej: 12345678-9" style="width: 140px; text-align: center"class="rounded" maxlength="10" onkeypress="return validar_numero_letra(this.event)"/></td>
                 <td><input type="text" id="mc_nombre" placeholder="Nombre" style="width: 140px; text-align: center" class="rounded"/></td>
                 <td><input type="text" id="mc_direccion" placeholder="Dirección" style="width: 140px; text-align: center" class="rounded"/></td>
-                <td><input type="text" id="mc_ciudad" placeholder="Ciudad" style="width: 140px; text-align: center" class="rounded"/></td>
-                <td><input type="text" id="mc_comuna" placeholder="Comuna" style="width: 140px; text-align: center"class="rounded"/></td>
-                <td><input type="text" id="mc_telefono" placeholder="Telefono" style="width: 130px; text-align: center"class="rounded"/></td>
+                <td><select id="mc_ciudad" style="width: 140px; text-align: center" class="rounded"/></td>
+                <td><select id="mc_comuna" style="width: 140px; text-align: center"class="rounded"/></td>
+                <td><input type="text" id="mc_telefono" placeholder="Telefono" style="width: 130px; text-align: center"class="rounded" onkeypress="return solo_numeros(event)" maxlength="10"/></td>
                 <td><input type="text" id="mc_giro" placeholder="Giro" style="width: 140px; text-align: center" class="rounded"/></td>
             </tr>
             <tr>
@@ -228,9 +241,9 @@
                             <option value="f">Facturas</option>
                             <option value="c">Clientes</option>
                             <option value="u">Usarios</option>
-                            <option value="rf">Resumen Factura</option>
+                            <option value="rf">Resumen Facturas</option>
                             <option value="rc">Resumen Clientes</option>
-                            <option value="ru">Resumen Usuarios</option>
+                            <option value="ru">Resumen Usarios</option>
                         </select>
                     </td>
                     <td>

@@ -18,8 +18,61 @@ $(document).ready(function () {
     $("#menuclientes").button().click(function () {
         clientes();
     });
-    $("#menufactura").button().click(function () {
-        factura();
+    $(function () {
+        var dialog, form,
+                password = $("#password"),
+                allFields = $([]).add(password);
+
+        function validar_pass() {
+            var pass = $("#password").val();
+            $.post(base_url + "controlador/validar_pass", {},
+                    function (datos) {
+                        if (datos.pass == pass) {
+                            dialog.dialog("close");
+                            factura();
+                        } else {
+                            $(function () {
+                                $("#dialog-pass").show();
+                                $("#dialog-pass").dialog({
+                                    modal: true,
+                                    buttons: {
+                                        Ok: function () {
+                                            $(this).dialog("close");
+                                            foco('password');
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }, "json");
+        }
+
+        dialog = $("#dialog-form").dialog({
+            autoOpen: false,
+            height: 300,
+            width: 350,
+            modal: true,
+            buttons: {
+                Validar: function () {
+                    validar_pass();
+                },
+                Cancel: function () {
+                    dialog.dialog("close");
+                }
+            },
+            close: function () {
+                form[ 0 ].reset();
+                allFields.removeClass("ui-state-error");
+            }
+        });
+
+        form = dialog.find("form").on("submit", function (event) {
+            event.preventDefault();
+            validar_pass();
+        });
+        $("#menufactura").button().click(function () {
+            dialog.dialog("open");
+        });
     });
     $("#menuinformes").button().click(function () {
         informes();
@@ -33,6 +86,15 @@ $(document).ready(function () {
     });
     $("#mc_bt_editar").button().click(function () {
         update_clientes();
+    });
+
+    $("#mc_ciudad").change(function () {
+        var id_ciudad = $("#mc_ciudad").val();
+        $.post(base_url + "controlador/cargar_select_comuna_ciudad",
+                {id_ciudad: id_ciudad},
+        function (ruta, datos) {
+            $("#mc_comuna").html(ruta, datos);
+        });
     });
     $("#mc_filtro").keyup(function () {
         if ($(this).val() != "")
@@ -302,6 +364,37 @@ function cargar_select_clientes()
             });
 }
 
+function cargar_select_ciudad()
+{
+    $.post(
+            base_url + "controlador/cargar_select_ciudad",
+            {},
+            function (ruta, datos) {
+                $("#mc_ciudad").html(ruta, datos);
+            });
+}
+
+function cargar_select_comuna()
+{
+    $.post(
+            base_url + "controlador/cargar_select_comuna",
+            {},
+            function (ruta, datos) {
+                $("#mc_comuna").html(ruta, datos);
+            });
+}
+
+function cargar_select_comuna_ciudad(id)
+{
+    var id_ciudad = id;
+    $.post(
+            base_url + "controlador/cargar_select_comuna_ciudad",
+            {id_ciudad: id_ciudad},
+    function (ruta, datos) {
+        $("#mc_comuna").html(ruta, datos);
+    });
+}
+
 function insert_cliente() {
     var rut = $("#mc_rut").val();
     var nombre = $("#mc_nombre").val();
@@ -326,8 +419,6 @@ function insert_cliente() {
                             $("#mc_rut").val("");
                             $("#mc_nombre").val("");
                             $("#mc_direccion").val("");
-                            $("#mc_ciudad").val("");
-                            $("#mc_comuna").val("");
                             $("#mc_telefono").val("");
                             $("#mc_giro").val("");
                             cargar_clientes();
@@ -401,8 +492,6 @@ function update_clientes()
                                     $("#mc_rut").val("");
                                     $("#mc_nombre").val("");
                                     $("#mc_direccion").val("");
-                                    $("#mc_ciudad").val("");
-                                    $("#mc_comuna").val("");
                                     $("#mc_telefono").val("");
                                     $("#mc_giro").val("");
                                     cargar_clientes();
@@ -904,7 +993,7 @@ function cargar_rangos()
 //        $("#r_rango_select").html("<option value='d'>Diario</option>");
 //    } else {
     if (tipo == "f" || tipo == "c" || tipo == "u") {
-        $("#r_rango_select").html("<option value='d'>Diario</option><option value='m'>Mensual</option>");
+        $("#r_rango_select").html("<option value='d'>Diario</option><option value='m'>Mensual");
     } else {
         $("#r_rango_select").html("<option value='m'>Mensual</option><option value='a'>Anual</option>");
     }
@@ -921,7 +1010,7 @@ function generar_informe() {
             $("#reporte").html(ruta, datos);
         });
     } else {
-        if (filtro == "m") {
+        if (rango == "m") {
             $.post(base_url + "controlador/reporte_mensual", {tipo: tipo, fecha: fecha},
             function (ruta, datos) {
                 $("#reporte").html(ruta, datos);

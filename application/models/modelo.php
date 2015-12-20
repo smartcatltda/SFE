@@ -10,10 +10,20 @@ class modelo extends CI_Model {
         return $this->db->get('usuario');
     }
 
+    //VALIDAR CONTRASEÑA
+    function validar_pass($id_user) {
+        $this->db->select('pass');
+        $this->db->where('id_usuario', $id_user);
+        $this->db->from('usuario');
+        return $this->db->get();
+    }
+
     //**********************Mantenedor Clientes**************************
     function cargar_clientes() {
         $this->db->select('*');
         $this->db->from('cliente');
+        $this->db->join('comuna_cl', 'cliente.comuna_c = comuna_cl.id_co');
+        $this->db->join('provincia_cl', 'provincia_cl.id_pr = comuna_cl.id_pr');
         $this->db->order_by('estado_cliente', 'DESC');
         return $this->db->get();
     }
@@ -22,6 +32,28 @@ class modelo extends CI_Model {
         $this->db->select('*');
         $this->db->where('estado_cliente', '1');
         $this->db->from('cliente');
+        return $this->db->get();
+    }
+
+    function cargar_ciudad() {
+        $this->db->select('*');
+        $this->db->from('provincia_cl');
+        $this->db->order_by('str_descripcion_pr', 'ASC');
+        return $this->db->get();
+    }
+
+    function cargar_comuna() {
+        $this->db->select('*');
+        $this->db->from('comuna_cl');
+        $this->db->order_by('str_descripcion_co', 'ASC');
+        return $this->db->get();
+    }
+
+    function cargar_comuna_ciudad($id) {
+        $this->db->select('*');
+        $this->db->from('comuna_cl');
+        $this->db->where('id_pr', $id);
+        $this->db->order_by('str_descripcion_co', 'ASC');
         return $this->db->get();
     }
 
@@ -280,12 +312,94 @@ class modelo extends CI_Model {
     }
 
 //***********************************INFORMES******************************************
-    function diario_F($fecha) {
+    //INFORMES DIARIOS
+    function diario_f($fecha) {
         $this->db->select('*');
         $this->db->from('factura');
         $this->db->join('cliente', 'factura.rut_c = cliente.rut_c');
         $this->db->join('usuario', 'factura.id_usuario = usuario.id_usuario');
         $this->db->where('factura.fecha_fac', $fecha);
+        return $this->db->get();
+    }
+
+    function diario_c($fecha) {
+        $this->db->select('*');
+        $this->db->from('factura');
+        $this->db->join('cliente', 'factura.rut_c = cliente.rut_c');
+        $this->db->join('comuna_cl', 'cliente.comuna_c = comuna_cl.id_co');
+        $this->db->join('provincia_cl', 'provincia_cl.id_pr = comuna_cl.id_pr');
+        $this->db->order_by('nombre_c', 'DESC');
+        $this->db->where('factura.fecha_fac', $fecha);
+        return $this->db->get();
+    }
+
+    //INFORMES MENSUALES
+    function mensual_f($mes, $ano) {
+        $this->db->select('*');
+        $this->db->from('factura');
+        $this->db->join('cliente', 'factura.rut_c = cliente.rut_c');
+        $this->db->join('usuario', 'factura.id_usuario = usuario.id_usuario');
+        $this->db->where('MONTH(fecha_fac)', $mes);
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        return $this->db->get();
+    }
+
+    function r_mensual_f($mes, $ano) {
+        $this->db->select('*');
+        $this->db->select_sum('neto_fac');
+        $this->db->select_sum('iva_fac');
+        $this->db->select_sum('total_fac');
+        $this->db->where('MONTH(fecha_fac)', $mes);
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        $this->db->from('factura');
+        return $this->db->get();
+    }
+
+    function r_mensual_fac($mes, $ano) {
+        $this->db->select('*');
+        $this->db->where('MONTH(fecha_fac)', $mes);
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        $this->db->from('factura');
+        return $this->db->get();
+    }
+
+    function mensual_c($mes, $ano) {
+        $this->db->select('*');
+        $this->db->from('factura');
+        $this->db->join('cliente', 'factura.rut_c = cliente.rut_c');
+        $this->db->join('comuna_cl', 'cliente.comuna_c = comuna_cl.id_co');
+        $this->db->join('provincia_cl', 'provincia_cl.id_pr = comuna_cl.id_pr');
+        $this->db->order_by('nombre_c', 'DESC');
+        $this->db->where('MONTH(fecha_fac)', $mes);
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        return $this->db->get();
+    }
+
+    function r_mensual_c($mes, $ano) {
+        $this->db->select('rut_c, COUNT(rut_c) as total');
+        $this->db->group_by('rut_c');
+        $this->db->order_by('total', 'desc');
+        $this->db->where('MONTH(fecha_fac)', $mes);
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        $this->db->from('factura');
+        return $this->db->get();
+    }
+
+//INFORMES ANUALES
+    function anual_f($ano) {
+        $this->db->select('*');
+        $this->db->select_sum('neto_fac');
+        $this->db->select_sum('iva_fac');
+        $this->db->select_sum('total_fac');
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        $this->db->from('factura');
+        return $this->db->get();
+    }
+
+    function anual_fac($ano) {
+        $this->db->select('*');
+        $this->db->where('YEAR(fecha_fac)', $ano);
+        $this->db->from('factura');
         return $this->db->get();
     }
 

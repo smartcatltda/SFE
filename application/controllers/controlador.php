@@ -9,8 +9,6 @@ class controlador extends CI_Controller {
         parent::__construct();
         $this->load->model("modelo");
         $this->load->library('pdf');
-        $this->load->library('XML');
-        $this->load->library('Dte');
     }
 
     public function index() {
@@ -105,6 +103,18 @@ class controlador extends CI_Controller {
         echo json_encode(array('return' => $return));
     }
 
+    //Validar Contraseña
+
+    function validar_pass() {
+        $id_user = $this->session->userdata('id_user');
+        $datos = $this->modelo->validar_pass($id_user)->result();
+          foreach ($datos as $fila) {
+              $pass = $fila->pass;        
+               
+            }
+        echo json_encode(array('pass' => $pass));
+    }
+
     //****************MANTENEDOR CLIENTE*******************
     function cargar_clientes() {
         $permiso = $this->session->userdata('permiso');
@@ -126,6 +136,28 @@ class controlador extends CI_Controller {
         $data ['cantidad'] = $datos->num_rows();
         $data ['clientes'] = $datos->result();
         $this->load->view("select_clientes", $data);
+    }
+
+    function cargar_select_ciudad() {
+        $datos = $this->modelo->cargar_ciudad();
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['ciudad'] = $datos->result();
+        $this->load->view("select_ciudad", $data);
+    }
+
+    function cargar_select_comuna() {
+        $datos = $this->modelo->cargar_comuna();
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['comuna'] = $datos->result();
+        $this->load->view("select_comuna", $data);
+    }
+
+    function cargar_select_comuna_ciudad() {
+        $id = $this->input->post('id_ciudad');
+        $datos = $this->modelo->cargar_comuna_ciudad($id);
+        $data ['cantidad'] = $datos->num_rows();
+        $data ['comuna'] = $datos->result();
+        $this->load->view("select_comuna", $data);
     }
 
     function insert_cliente() {
@@ -452,7 +484,59 @@ class controlador extends CI_Controller {
         if ($tipo == "f") {
             $datos["diario_f"] = $this->modelo->diario_f($fecha)->result();
             $datos["cantidad"] = $this->modelo->diario_f($fecha)->num_rows();
-            $this->load->view("r_factura", $datos);
+            $this->load->view("r_diario_factura", $datos);
+        } else {
+            if ($tipo == "c") {
+                $datos["diario_c"] = $this->modelo->diario_c($fecha)->result();
+                $datos["cantidad"] = $this->modelo->diario_c($fecha)->num_rows();
+                $this->load->view("r_diario_cliente", $datos);
+            }
+        }
+    }
+
+    function reporte_mensual() {
+        $tipo = $this->input->post('tipo');
+        $fecha = $this->input->post('fecha');
+        list($ano, $mes, $dia) = explode("/", $fecha);
+        if ($tipo == "f") {
+            $datos["mensual_f"] = $this->modelo->mensual_f($mes, $ano)->result();
+            $datos["cantidad"] = $this->modelo->mensual_f($mes, $ano)->num_rows();
+            $this->load->view("r_mensual_factura", $datos);
+        } else {
+            if ($tipo == "rf") {
+                $datos["mensual_f"] = $this->modelo->r_mensual_f($mes, $ano)->result();
+                $datos["total_fac"] = $this->modelo->r_mensual_fac($mes, $ano)->num_rows();
+                $datos["cantidad"] = $this->modelo->r_mensual_f($mes, $ano)->num_rows();
+                $this->load->view("resumen_mensual_factura", $datos);
+            } else {
+                if ($tipo == "c") {
+                    $datos["mensual_c"] = $this->modelo->mensual_c($mes, $ano)->result();
+                    $datos["cantidad"] = $this->modelo->mensual_c($mes, $ano)->num_rows();
+                    $this->load->view("r_mensual_cliente", $datos);
+                } else {
+                    if ($tipo == "rc") {
+                        $datos["mensual_c"] = $this->modelo->r_mensual_c($mes, $ano)->result();
+                        $datos["cantidad"] = $this->modelo->r_mensual_c($mes, $ano)->num_rows();
+                        $this->load->view("resumen_mensual_cliente", $datos);
+                    }
+                }
+            }
+        }
+    }
+
+    function reporte_anual() {
+        $tipo = $this->input->post('tipo');
+        $fecha = $this->input->post('fecha');
+        list($ano, $mes, $dia) = explode("/", $fecha);
+        if ($tipo == "rf") {
+            $datos["anual_f"] = $this->modelo->anual_f($ano)->result();
+            $datos["total_fac"] = $this->modelo->anual_fac($ano)->num_rows();
+            $datos["cantidad"] = $this->modelo->anual_f($ano)->num_rows();
+            $this->load->view("resumen_anual_factura", $datos);
+        } else {
+            if ($tipo == "c") {
+                
+            }
         }
     }
 
